@@ -1,37 +1,51 @@
-import Skeleton from 'react-loading-skeleton'
+import Nav from '@/components/nav';
+import { makeStyles } from '@material-ui/core/styles';
+import { Container, Grid, Card, Button } from '@material-ui/core';
+import Link from 'next/link';
 
-import Nav from '@/components/nav'
-import Container from '@/components/container'
-// import Entries from '@/components/entries'
-
-// import { useEntries } from '@/lib/swr-hooks'
+const useStyles = makeStyles((theme) => ({
+  middleContainer: {
+    minHeight: 'calc(100vh - 65px)',
+    backgroundColor: 'black',
+    padding: 0,
+  },
+  card: {
+    alignItems: "center",
+    backgroundColor: "white",
+    minHeight: '200px',
+    minWidth: '400px',
+    textAlign: 'center',
+    padding: '20px'
+  }
+}));
 
 export default function IndexPage() {
-  // const { entries, isLoading } = useEntries()
-
-  // if (isLoading) {
-  //   return (
-  //     <div>
-  //       <Nav />
-  //       <Container>
-  //         <Skeleton width={180} height={24} />
-  //         <Skeleton height={48} />
-  //         <div className="my-4" />
-  //         <Skeleton width={180} height={24} />
-  //         <Skeleton height={48} />
-  //         <div className="my-4" />
-  //         <Skeleton width={180} height={24} />
-  //         <Skeleton height={48} />
-  //       </Container>
-  //     </div>
-  //   )
-  // }
+  const classes = useStyles();
 
   return (
     <div>
       <Nav />
-      <Container>
-        {/* <Entries entries={entries} /> */}
+      <Container maxWidth="lg" className={classes.middleContainer}>
+        <main>
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+            justify="center"
+            className={classes.middleContainer}
+          >
+            <Card className={classes.card}>
+              <h1 className="text-4xl font-bold mb-5">3-5-2</h1>
+              <p className="mb-5">A fantasy football game with a twist.</p>
+              <Link href="/login">
+                <Button variant="contained" color="primary">
+                  Get Started
+                </Button>
+              </Link>
+            </Card>
+          </Grid>
+        </main>
       </Container>
     </div>
   )
