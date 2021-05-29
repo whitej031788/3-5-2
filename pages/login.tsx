@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Nav from '@/components/nav';
 import { makeStyles } from '@material-ui/core/styles';
 import { Container, Grid, Card, Button, TextField } from '@material-ui/core';
-import { signIn, useSession } from 'next-auth/client';
+import { signIn, getSession } from 'next-auth/client';
 import useInputValue from '@/components/input-value';
 import AlertMessage from '@/components/alert-message';
 
@@ -26,13 +26,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function LoginPage() {
+export default function LoginPage({ session }) {
   const classes = useStyles();
-  const [session, loading] = useSession();
-  console.log(session);
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
+
   let email = useInputValue('email');
 
   function handleAuthLogin() {
@@ -53,7 +52,7 @@ export default function LoginPage() {
 
   return (
     <div>
-      <Nav />
+      <Nav isGuestRoute={true} />
       <Container maxWidth="lg" className={classes.middleContainer}>
         <main>
           <Grid
@@ -83,4 +82,23 @@ export default function LoginPage() {
       </Container>
     </div>
   )
+}
+
+export async function getServerSideProps(context) {
+  // Get the user's session based on the request
+  const session = await getSession(context);
+
+  if (session) {
+    // If no user, redirect to login
+    return {
+      props: {},
+      redirect: {
+        destination: '/home',
+        permanent: false
+      }
+    };
+  }
+
+  // If there is a user, return the current session
+  return { props: { session } };
 }

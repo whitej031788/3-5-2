@@ -5,7 +5,8 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "migrate": "node scripts/migrate-db.js"
+    "migrate": "node scripts/migrate-db.js",
+    "footyfetch": "node scripts/fetch-player-data.js"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.4",

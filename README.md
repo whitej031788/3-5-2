@@ -25,7 +25,7 @@ Then clone the repository, change directory and run:
 ```
 docker-compose build
 docker-compose up
-docker-compose exec app 3-5-2-server npm run migrate
+docker-compose exec 3-5-2-server npm run migrate
 ```
 
 The application should then be connected to a MySQL docker container, and running on `http://localhost:3000`. You will also need a `.env.local` file, which is not in the repository so reach out to Jamie or Sam.

@@ -16,6 +16,7 @@ import HideOnScroll from "./hide-on-scroll";
 import SideDrawer from "./side-drawer";
 import BackToTop from "./back-to-top";
 import Link from 'next/link';
+import { signOut } from 'next-auth/client';
 
 const useStyles = makeStyles({
   navbarDisplayFlex: {
@@ -38,15 +39,28 @@ const useStyles = makeStyles({
   }
 });
 
-const navLinks = [
+const authNavLinks = [
+  { title: `leagues`, path: `/leagues` },
+  { title: `account`, path: `/account` },
+  { title: `logout`, path: `/logout` }
+];
+
+const guestNavLinks = [
   { title: `about us`, path: `/about-us` },
   { title: `contact`, path: `/contact` },
   { title: `faq`, path: `/faq` },
   { title: `login`, path: `/login` }
 ];
 
-export default function Nav() {
+const Nav = ({ isGuestRoute }) => {
   const classes = useStyles();
+
+  let navLinks = [];
+  if (isGuestRoute) {
+    navLinks = guestNavLinks
+  } else {
+    navLinks = authNavLinks
+  }
 
   return (
     <>
@@ -88,7 +102,6 @@ export default function Nav() {
         </AppBar>
       </HideOnScroll>
       <Toolbar id="back-to-top-anchor" />
-
       <BackToTop>
         <Fab color="secondary" size="large" aria-label="scroll back to top">
           <KeyboardArrowUp />
@@ -97,3 +110,9 @@ export default function Nav() {
     </>
   );
 };
+
+Nav.defaultProps = {
+  isGuestRoute: false
+};
+
+export default Nav

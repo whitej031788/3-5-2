@@ -2,6 +2,7 @@ import Nav from '@/components/nav';
 import { makeStyles } from '@material-ui/core/styles';
 import { Container, Grid, Card, Button } from '@material-ui/core';
 import Link from 'next/link';
+import { getSession } from 'next-auth/client';
 
 const useStyles = makeStyles((theme) => ({
   middleContainer: {
@@ -19,12 +20,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function IndexPage() {
+export default function HomePage() {
   const classes = useStyles();
 
   return (
     <div>
-      <Nav isGuestRoute={true} />
+      <Nav />
       <Container maxWidth="lg" className={classes.middleContainer}>
         <main>
           <Grid
@@ -49,4 +50,23 @@ export default function IndexPage() {
       </Container>
     </div>
   )
+}
+
+export async function getServerSideProps(context) {
+  // Get the user's session based on the request
+  const session = await getSession(context);
+
+  if (!session) {
+    // If no user, redirect to login
+    return {
+      props: {},
+      redirect: {
+        destination: '/login',
+        permanent: false
+      }
+    };
+  }
+
+  // If there is a user, return the current session
+  return { props: { session } };
 }

@@ -1,8 +1,6 @@
 const path = require('path')
 const envPath = path.resolve(process.cwd(), '.env.local')
 
-console.log({ envPath })
-
 require('dotenv').config({ path: envPath })
 
 const mysql = require('serverless-mysql')
@@ -30,16 +28,16 @@ async function query(q) {
 // Create "entries" table if doesn't exist
 async function migrate() {
   try {
-    await createNextAuthUsersTables();
-    await createLeagueTables();
+    await createDatabaseScheme();
     console.log('migration ran successfully')
   } catch (e) {
+    console.log(e)
     console.error('could not run migration, double check your credentials.')
     process.exit(1)
   }
 }
 
-async function createNextAuthUsersTables() {
+async function createDatabaseScheme() {
   try {
     await query(`
       CREATE TABLE IF NOT EXISTS accounts
@@ -101,6 +99,57 @@ async function createNextAuthUsersTables() {
     `);
 
     await query(`
+      CREATE TABLE IF NOT EXISTS competitions
+      (
+        id         INT NOT NULL,
+        name       VARCHAR(255) NOT NULL,
+        code       VARCHAR(255) NOT NULL,
+        start_date TIMESTAMP(6) NOT NULL,
+        end_date TIMESTAMP(6) NOT NULL,
+        current_match_day INT NOT NULL,
+        created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+        updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+        PRIMARY KEY (id)
+      );
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS teams
+      (
+        id              INT NOT NULL,
+        competition_id   INT NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        crest_url  VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+        updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+        PRIMARY KEY (id)
+      );
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS players
+      (
+        id              INT NOT NULL,
+        name       VARCHAR(255) NOT NULL,
+        position  VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+        updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+        PRIMARY KEY (id)
+      );
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS player_teams
+      (
+        player_id   INT NOT NULL,
+        team_id       INT NOT NULL,
+        created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+        updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+        PRIMARY KEY (player_id, team_id)
+      );
+    `);
+
+    await query(`
       CREATE UNIQUE INDEX compound_id
         ON accounts(compound_id);
     `);
@@ -134,14 +183,20 @@ async function createNextAuthUsersTables() {
       CREATE UNIQUE INDEX token
         ON verification_requests(token);
     `);
+
+    await query(`ALTER TABLE teams ADD CONSTRAINT fk_competition_id FOREIGN KEY (competition_id) REFERENCES competitions(id);`);
+    await query(`ALTER TABLE player_teams ADD CONSTRAINT fk_player_id FOREIGN KEY (player_id) REFERENCES players(id);`);
+    await query(`ALTER TABLE player_teams ADD CONSTRAINT fk_team_id FOREIGN KEY (team_id) REFERENCES teams(id);`);
+
+    await query(`
+      CREATE INDEX position
+        ON players(position);
+    `);
+
   } catch (e) {
     console.log(e)
     console.error('could not run authentication migration, double check your credentials.')
     process.exit(1)
-  }
-
-  async function createLeagueTables() {
-    
   }
 }
 
