@@ -9,6 +9,8 @@ services:
       - "3000:3000"
     networks:
       - 3-5-2-network
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=8192
 
   3-5-2-db:
     image: mysql:latest
@@ -17,6 +19,8 @@ services:
     environment:
       MYSQL_DATABASE: 3-5-2
       MYSQL_ROOT_PASSWORD: JHkj%^a8832:!
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
     volumes:
       - dbdata:/var/lib/mysql
       - "./scripts/mysql/schema.sql:/docker-entrypoint-initdb.d/1.sql"

@@ -14,6 +14,40 @@ export function useEntries() {
   }
 }
 
+export function useCompetitions() {
+  const { data, error } = useSWR(`/api/get-competitions`, fetcher)
+
+  return {
+    competitions: data,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export function useLeagues() {
+  const { data, error } = useSWR(`/api/get-leagues`, fetcher)
+
+  return {
+    leagues: data,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export function usePlayers(league_id) {
+  const { data, error } = useSWR(`/api/get-players?league_id=${league_id}`, fetcher)
+
+  return {
+    players: data,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export function useLeague(id: string) {
+  return useSWR(`/api/get-league?id=${id}`, fetcher)
+}
+
 export function useEntry(id: string) {
   return useSWR(`/api/get-entry?id=${id}`, fetcher)
 }

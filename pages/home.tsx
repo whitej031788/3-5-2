@@ -1,13 +1,11 @@
 import Nav from '@/components/nav';
 import { makeStyles } from '@material-ui/core/styles';
-import { Container, Grid, Card, Button } from '@material-ui/core';
-import Link from 'next/link';
+import { Container, Grid } from '@material-ui/core';
 import { getSession } from 'next-auth/client';
 
 const useStyles = makeStyles((theme) => ({
   middleContainer: {
     minHeight: 'calc(100vh - 65px)',
-    backgroundColor: 'black',
     padding: 0,
   },
   card: {
@@ -26,7 +24,7 @@ export default function HomePage() {
   return (
     <div>
       <Nav />
-      <Container maxWidth="lg" className={classes.middleContainer}>
+      <Container maxWidth="md" className={classes.middleContainer}>
         <main>
           <Grid
             container
@@ -36,37 +34,10 @@ export default function HomePage() {
             justify="center"
             className={classes.middleContainer}
           >
-            <Card className={classes.card}>
-              <h1 className="text-4xl font-bold mb-5">3-5-2</h1>
-              <p className="mb-5">A fantasy football game with a twist.</p>
-              <Link href="/login">
-                <Button variant="contained" color="primary">
-                  Get Started
-                </Button>
-              </Link>
-            </Card>
+            <h1>This will be the dashboard, not sure what goes here yet</h1>
           </Grid>
         </main>
       </Container>
     </div>
   )
-}
-
-export async function getServerSideProps(context) {
-  // Get the user's session based on the request
-  const session = await getSession(context);
-
-  if (!session) {
-    // If no user, redirect to login
-    return {
-      props: {},
-      redirect: {
-        destination: '/login',
-        permanent: false
-      }
-    };
-  }
-
-  // If there is a user, return the current session
-  return { props: { session } };
 }

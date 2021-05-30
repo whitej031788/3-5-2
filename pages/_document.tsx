@@ -1,6 +1,7 @@
 import React from 'react';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 import { ServerStyleSheets } from '@material-ui/core/styles';
+import theme from '@/components/theme';
 
 class MyDocument extends Document {
   static async getInitialProps(ctx) {
@@ -30,6 +31,7 @@ class MyDocument extends Document {
           <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png" />
           <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png" />
           <link rel="manifest" href="/images/site.webmanifest" />
+          <meta name="theme-color" content={theme.palette.primary.main} />
         </Head>
         <body>
           <Main />

@@ -31,5 +31,17 @@ export default NextAuth({
     // Use it to limit write operations. Set to 0 to always update the database.
     // Note: This option is ignored if using JSON Web Tokens
     updateAge: 24 * 60 * 60, // 24 hours
+  },
+  callbacks: {
+    /**
+     * @param  {object} session      Session object
+     * @param  {object} user         User object    (if using database sessions)
+     *                               JSON Web Token (if not using database sessions)
+     * @return {object}              Session that will be returned to the client
+     */
+    session: async (session, user, _sessionToken) => {
+      session.user.id = user.id;
+      return Promise.resolve(session);
+    },
   }
 })

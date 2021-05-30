@@ -68,7 +68,6 @@ export default function LoginPage({ session }) {
               <p className="mb-5">All you need to get started is your email. We will send you a verification that will create your account and log you in. No need to remember a 3,476,232th password.</p>
               {(!success || messageType != 'success') &&
                 <form noValidate autoComplete="off">
-                  
                     <TextField fullWidth id="email" name="email" label="Email" {...email.bind} />
                     <Button className={classes.button} variant="contained" color="primary" onClick={() => handleAuthLogin()}>
                       Sign In

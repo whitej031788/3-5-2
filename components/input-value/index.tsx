@@ -6,7 +6,12 @@ function InputValue (field) {
   let [error, setError] = useState('');
 
   let onChange = useCallback(function (event) {
-    setValue(event.currentTarget.value);
+    // MUI Select dropdown fires a click event on target instead of currentTarget
+    if (event.type == "click") {
+      setValue(event.target.value);
+    } else {
+      setValue(event.currentTarget.value);
+    }
     setError('');
   }, []);
 

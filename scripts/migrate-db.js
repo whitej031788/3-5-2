@@ -150,48 +150,81 @@ async function createDatabaseScheme() {
     `);
 
     await query(`
-      CREATE UNIQUE INDEX compound_id
-        ON accounts(compound_id);
+      CREATE TABLE IF NOT EXISTS leagues
+      (
+        id              INT NOT NULL AUTO_INCREMENT,
+        user_id   INT NOT NULL,
+        competition_id   INT NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        start_date TIMESTAMP(6) NOT NULL,
+        join_code VARCHAR(255) NOT NULL,
+        max_players INT,
+        join_fee DECIMAL(15,2),
+        created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+        updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+        PRIMARY KEY (id)
+      );
     `);
 
     await query(`
-      CREATE INDEX provider_account_id
-        ON accounts(provider_account_id);
-   `);
-
-    await query(`
-      CREATE INDEX provider_id
-        ON accounts(provider_id);
+      CREATE TABLE IF NOT EXISTS user_leagues
+      (
+        user_id   INT NOT NULL,
+        league_id   INT NOT NULL,
+        created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+        updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+        PRIMARY KEY (user_id, league_id)
+      );
     `);
 
-    await query(`
-      CREATE INDEX user_id
-        ON accounts(user_id);
-    `);
+  //   await query(`
+  //     CREATE UNIQUE INDEX compound_id
+  //       ON accounts(compound_id);
+  //   `);
 
-    await query(`
-      CREATE UNIQUE INDEX session_token
-        ON sessions(session_token);
-    `);
+  //   await query(`
+  //     CREATE INDEX provider_account_id
+  //       ON accounts(provider_account_id);
+  // `);
 
-    await query(`
-      CREATE UNIQUE INDEX email
-        ON users(email);
-    `);
+  //   await query(`
+  //     CREATE INDEX provider_id
+  //       ON accounts(provider_id);
+  //   `);
 
-    await query(`
-      CREATE UNIQUE INDEX token
-        ON verification_requests(token);
-    `);
+  //   await query(`
+  //     CREATE INDEX user_id
+  //       ON accounts(user_id);
+  //   `);
 
-    await query(`ALTER TABLE teams ADD CONSTRAINT fk_competition_id FOREIGN KEY (competition_id) REFERENCES competitions(id);`);
-    await query(`ALTER TABLE player_teams ADD CONSTRAINT fk_player_id FOREIGN KEY (player_id) REFERENCES players(id);`);
-    await query(`ALTER TABLE player_teams ADD CONSTRAINT fk_team_id FOREIGN KEY (team_id) REFERENCES teams(id);`);
+  //   await query(`
+  //     CREATE UNIQUE INDEX session_token
+  //       ON sessions(session_token);
+  //   `);
 
-    await query(`
-      CREATE INDEX position
-        ON players(position);
-    `);
+  //   await query(`
+  //     CREATE UNIQUE INDEX email
+  //       ON users(email);
+  //   `);
+
+  //   await query(`
+  //     CREATE UNIQUE INDEX token
+  //       ON verification_requests(token);
+  //   `);
+
+  //   await query(`
+  //     CREATE INDEX position
+  //       ON players(position);
+  //   `);
+
+  //   await query(`ALTER TABLE teams ADD CONSTRAINT fk_competition_id FOREIGN KEY (competition_id) REFERENCES competitions(id);`);
+  //   await query(`ALTER TABLE player_teams ADD CONSTRAINT fk_player_id FOREIGN KEY (player_id) REFERENCES players(id);`);
+  //   await query(`ALTER TABLE player_teams ADD CONSTRAINT fk_team_id FOREIGN KEY (team_id) REFERENCES teams(id);`);
+
+  //   await query(`ALTER TABLE leagues ADD CONSTRAINT fk_leagues_competition_id FOREIGN KEY (competition_id) REFERENCES competitions(id);`);
+  //   await query(`ALTER TABLE leagues ADD CONSTRAINT fk_leagues_user_id FOREIGN KEY (user_id) REFERENCES users(id);`);
+  //   await query(`ALTER TABLE user_leagues ADD CONSTRAINT fk_league_id FOREIGN KEY (league_id) REFERENCES leagues(id);`);
+  //   await query(`ALTER TABLE user_leagues ADD CONSTRAINT fk_user_leagues_user_id FOREIGN KEY (user_id) REFERENCES users(id);`);
 
   } catch (e) {
     console.log(e)

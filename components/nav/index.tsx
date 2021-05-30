@@ -12,11 +12,13 @@ import {
 } from "@material-ui/core";
 import { Home, KeyboardArrowUp } from "@material-ui/icons";
 import * as React from "react";
+import { useEffect } from "react";
 import HideOnScroll from "./hide-on-scroll";
 import SideDrawer from "./side-drawer";
 import BackToTop from "./back-to-top";
 import Link from 'next/link';
-import { signOut } from 'next-auth/client';
+import { getSession } from 'next-auth/client';
+import Router from "next/router";
 
 const useStyles = makeStyles({
   navbarDisplayFlex: {
@@ -34,13 +36,13 @@ const useStyles = makeStyles({
     color: `white`
   },
   spanLogo: {
-    verticalAlign: 'bottom',
+    verticalAlign: 'super',
     marginLeft: '10px'
   }
 });
 
 const authNavLinks = [
-  { title: `leagues`, path: `/leagues` },
+  { title: `leagues`, path: `leagues` },
   { title: `account`, path: `/account` },
   { title: `logout`, path: `/logout` }
 ];
@@ -56,11 +58,26 @@ const Nav = ({ isGuestRoute }) => {
   const classes = useStyles();
 
   let navLinks = [];
+  let homeLink = `/`;
   if (isGuestRoute) {
     navLinks = guestNavLinks
   } else {
+    homeLink = `/home`;
     navLinks = authNavLinks
   }
+
+  useEffect(() => {
+    async function fetchSession() {
+      const session = await getSession()
+      if (!session) {
+        Router.push("/login")
+      }
+    }
+
+    if (!isGuestRoute) {
+      fetchSession();
+    }
+  });
 
   return (
     <>
@@ -69,8 +86,8 @@ const Nav = ({ isGuestRoute }) => {
           <Toolbar component="nav">
             <Container maxWidth="md" className={classes.navbarDisplayFlex}>
               <IconButton edge="start" aria-label="home">
-                <Link href="/">
-                  <a style={{ color: `white` }}>
+                <Link href={homeLink}>
+                  <a className={classes.linkText} style={{ color: `white` }}>
                     <Home fontSize="large" />
                     <span className={classes.spanLogo}>3-5-2</span>
                   </a>
@@ -84,7 +101,7 @@ const Nav = ({ isGuestRoute }) => {
                   className={classes.navListDisplayFlex}
                 >
                   {navLinks.map(({ title, path }) => (
-                    <Link href={path} key={title}>
+                    <Link href={path} key={title} as={path}>
                       <a className={classes.linkText}>
                         <ListItem button>
                           <ListItemText primary={title} />
