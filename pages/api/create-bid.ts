@@ -45,8 +45,10 @@ const handler: NextApiHandler = async (req, res) => {
 
     let bidSuccess = 0;
 
+    let currentBidAmount = !checkBidAmount[0].top_bid ? 0 : checkBidAmount[0].top_bid;
+
     // If the bid amount is more, or there isn't a bid for the player yet, this is a successful bid
-    if (!checkBidAmount[0].top_bid || (bid_amount > checkBidAmount[0].top_bid)) {
+    if (!currentBidAmount || (bid_amount > currentBidAmount)) {
       bidSuccess = 1;
     }
 
@@ -63,17 +65,34 @@ const handler: NextApiHandler = async (req, res) => {
     // if it's successful, lets upsert a row into the user_league_players table, saying the current owner
     if (bidSuccess) {
       let expires_at = new Date(); expires_at.setDate(expires_at.getDate()+1);
-      const addOwner = await query(
+      let winningBidThresh = currentBidAmount + 100000;
+      const addOwnerSuccess = await query(
         `
-        INSERT INTO user_league_players (league_id, player_id, user_id, league_bid_id, winning_bid_amount, is_over, expires_at) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE league_bid_id=VALUES(league_bid_id), user_id=VALUES(user_id), winning_bid_amount=VALUES(winning_bid_amount), is_over=VALUES(is_over), expires_at=VALUES(expires_at)
+        INSERT INTO user_league_players (league_id, player_id, user_id, league_bid_id, current_winning_bid, winning_bid_amount, is_over, expires_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE league_bid_id=VALUES(league_bid_id), user_id=VALUES(user_id), current_winning_bid=VALUES(current_winning_bid), winning_bid_amount=VALUES(winning_bid_amount), is_over=VALUES(is_over), expires_at=VALUES(expires_at)
         `,
-        [league_id, player_id, session.user.id, results.insertId, bid_amount, 0, expires_at]
+        [league_id, player_id, session.user.id, results.insertId, winningBidThresh, bid_amount, 0, expires_at]
       );
+    } else {
+      // Only update the winning bid if the bid amount is greater than the existing one, otherwise it might lower it
+      if (bid_amount > currentBidAmount) {
+        const addOwnerFail = await query(
+          `
+          UPDATE user_league_players
+          SET current_winning_bid = ?
+          WHERE league_id = ? AND player_id = ?
+          `,
+          [bid_amount, league_id, player_id]
+        );
+      }
     }
 
-    return res.json(results)
+    let returnObject = {
+      bidSuccess: bidSuccess
+    }
+
+    return res.json(returnObject)
   } catch (e) {
     console.log(e)
     res.status(500).json({ message: e.message })

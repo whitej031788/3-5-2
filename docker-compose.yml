@@ -3,8 +3,10 @@ version: "3"
 services:
   3-5-2-server:
     volumes:
-    - .:/app # this will enable changes made to the server JS to reflect in the container
+      - ./:/app # this will enable changes made to the server JS to reflect in the container
+      - /app/node_modules
     build: .
+    restart: always
     ports:
       - "3000:3000"
     networks:

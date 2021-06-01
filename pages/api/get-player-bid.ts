@@ -26,8 +26,10 @@ const handler: NextApiHandler = async (req, res) => {
 
     const checkIfMinutesHavePassed = await query(
       `
-      SELECT MAX(created_at) as recent_bid
+      SELECT MAX(lb.created_at) as recent_bid, MAX(bid_amount) as max_bid, MAX(ulp.user_id) as winning_user_id
       FROM league_bids lb
+      LEFT JOIN user_league_players ulp
+      ON lb.id = ulp.league_bid_id AND lb.user_id = ulp.user_id
       WHERE lb.player_id = ?
       AND lb.user_id = ?
       AND lb.league_id = ?
@@ -36,22 +38,20 @@ const handler: NextApiHandler = async (req, res) => {
     )
 
     if (checkIfMinutesHavePassed.length !== 0 && !hasItBeenFifteenMinutes(new Date(checkIfMinutesHavePassed[0].recent_bid))) {
-      return res.status(400).json({ message: 'You have bid on this player in the last 15 minutes, please wait' })
+      let message = ""
+      if (checkIfMinutesHavePassed[0].winning_user_id == session.user.id) {
+        message = "You are already WINNING this auction with a bid of " + checkIfMinutesHavePassed[0].max_bid + ". You still have to wait 15 minutes since your last bid though."
+      } else {
+        message = "You have to wait 15 minutes since your last bid. You highest failed bid to date is for " + checkIfMinutesHavePassed[0].max_bid + "."
+      }
+      return res.status(400).json({ 
+        message: message, 
+        code: 'minlimit', 
+        data: {bid_date: new Date(checkIfMinutesHavePassed[0].recent_bid), bid_amount: checkIfMinutesHavePassed[0].max_bid}
+      })
     }
 
-    const results = await query(
-      `
-      SELECT ulp.user_id, ulp.winning_bid_amount
-      FROM league_bids lb
-      INNER JOIN user_league_players ulp
-      ON lb.id = ulp.league_bid_id
-      WHERE lb.league_id = ?
-      AND lb.player_id = ?
-    `,
-      [league_id, player_id]
-    )
-
-    return res.json(results)
+    return res.json(checkIfMinutesHavePassed)
   } catch (e) {
     return res.status(500).json({ message: e.message })
   }
