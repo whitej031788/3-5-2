@@ -62,7 +62,6 @@ export default function BidForm({ player, league_id }) {
       if (!res.ok) {
         setMessage(json.message)
         setResult('error')
-        throw Error(json.message)
       } else {
         setBidRequestComplete(true)
         //The bid was made, we have to check if it was successful

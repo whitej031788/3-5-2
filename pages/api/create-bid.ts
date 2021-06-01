@@ -38,10 +38,25 @@ const handler: NextApiHandler = async (req, res) => {
     // Check bid amount
     const checkBidAmount = await query(
       `
-      SELECT MAX(bid_amount) as top_bid FROM league_bids WHERE league_id = ? AND player_id = ?
+      SELECT MAX(bid_amount) as top_bid, MAX(ulp.expires_at) as expires_at
+      FROM league_bids lb
+      LEFT JOIN user_league_players ulp
+      ON lb.id = ulp.league_bid_id
+      WHERE lb.league_id = ? AND lb.player_id = ?
       `,
       [league_id, player_id]
     )
+
+    // Check if the action is over
+    if (checkBidAmount[0] && checkBidAmount[0].expires_at) {
+      let expiryDate = new Date(checkBidAmount[0].expires_at)
+      let nowDate = new Date()
+      if (expiryDate < nowDate) {
+        return res
+          .status(400)
+          .json({ message: 'This auction is over' })
+      }
+    }
 
     let bidSuccess = 0;
 
