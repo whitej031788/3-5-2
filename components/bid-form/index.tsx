@@ -12,7 +12,10 @@ export default function BidForm({ player, league_id }) {
   const [message, setMessage] = useState('');
   let bid_amount = useInputValue('bid_amount');
 
-  const bidData = usePlayerBidData(player.id, league_id);
+  const currentBidData = usePlayerBidData(player.id, league_id);
+
+  if (!currentBidData.isLoading)
+    console.log(currentBidData)
 
   async function submitBid(e) {
     e.preventDefault()
@@ -60,7 +63,7 @@ export default function BidForm({ player, league_id }) {
       <Grid container spacing={3}>
         <Grid style={{padding: "0px"}} item xs={12} sm={12}><h4>Team: {player.team_name}</h4></Grid>
         <Grid style={{padding: "0px"}} item xs={12} sm={12}><h4>Position: {player.position}</h4></Grid>
-        {(result !== 'success' && bidData) && (
+        {(result !== 'success' && !currentBidData.isError) && (
           <>
             <Grid item xs={12} sm={12}>
               <TextField
@@ -82,6 +85,7 @@ export default function BidForm({ player, league_id }) {
             </Grid>
           </>
         )}
+        {/* <AlertMessage open={currentBidData.isError !== ""} message={currentBidData.isError} type={'error'} /> */}
         <AlertMessage open={result !== ""} message={message} type={result} />
       </Grid>
     </>

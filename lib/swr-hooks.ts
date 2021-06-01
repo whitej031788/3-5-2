@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 
 function fetcher(url: string) {
-  return window.fetch(url).then((res) => res.json())
+  return window.fetch(url).then((res) => {console.log(res); return res.json()});
 }
 
 export function useEntries() {
@@ -54,5 +54,10 @@ export function useEntry(id: string) {
 
 
 export function usePlayerBidData(player_id: string, league_id: string) {
-  return useSWR(`/api/get-player-bid?player_id=${player_id}&league_id=${league_id}`, fetcher)
+  const { data, error } = useSWR(`/api/get-player-bid?player_id=${player_id}&league_id=${league_id}`, fetcher)
+  return {
+    bidData: data,
+    isLoading: !error && !data,
+    isError: error,
+  } 
 }

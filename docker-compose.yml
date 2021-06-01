@@ -19,6 +19,7 @@ services:
     environment:
       MYSQL_DATABASE: 3-5-2
       MYSQL_ROOT_PASSWORD: JHkj%^a8832:!
+      TZ: Europe/London
     cap_add:
       - SYS_NICE  # CAP_SYS_NICE
     volumes:
