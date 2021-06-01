@@ -177,6 +177,37 @@ async function createDatabaseScheme() {
       );
     `);
 
+    await query(`
+      CREATE TABLE IF NOT EXISTS league_bids
+      (
+        id              INT NOT NULL AUTO_INCREMENT,
+        user_id   INT NOT NULL,
+        league_id   INT NOT NULL,
+        player_id   INT NOT NULL,
+        bid_amount DECIMAL(15,2) NOT NULL,
+        is_success BOOLEAN NOT NULL DEFAULT 0,
+        created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+        updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+        PRIMARY KEY (id)
+      );
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS user_league_players
+      (
+        league_id   INT NOT NULL,
+        player_id   INT NOT NULL,
+        user_id   INT NOT NULL,
+        league_bid_id   INT NOT NULL,
+        winning_bid_amount DECIMAL(15,2) NOT NULL,
+        is_over BOOLEAN NOT NULL DEFAULT 0,
+        expires_at TIMESTAMP(6) NOT NULL,
+        created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+        updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+        PRIMARY KEY (league_id, player_id)
+      );
+    `);
+
   //   await query(`
   //     CREATE UNIQUE INDEX compound_id
   //       ON accounts(compound_id);
@@ -225,6 +256,15 @@ async function createDatabaseScheme() {
   //   await query(`ALTER TABLE leagues ADD CONSTRAINT fk_leagues_user_id FOREIGN KEY (user_id) REFERENCES users(id);`);
   //   await query(`ALTER TABLE user_leagues ADD CONSTRAINT fk_league_id FOREIGN KEY (league_id) REFERENCES leagues(id);`);
   //   await query(`ALTER TABLE user_leagues ADD CONSTRAINT fk_user_leagues_user_id FOREIGN KEY (user_id) REFERENCES users(id);`);
+
+    // await query(`ALTER TABLE league_bids ADD CONSTRAINT fk_league_bids_league_id FOREIGN KEY (league_id) REFERENCES leagues(id);`);
+    // await query(`ALTER TABLE league_bids ADD CONSTRAINT fk_league_bids_user_id FOREIGN KEY (user_id) REFERENCES users(id);`);
+    // await query(`ALTER TABLE league_bids ADD CONSTRAINT fk_league_bids_player_id FOREIGN KEY (player_id) REFERENCES players(id);`);
+
+    // await query(`ALTER TABLE user_league_players ADD CONSTRAINT fk_user_league_players_league_id FOREIGN KEY (league_id) REFERENCES leagues(id);`);
+    // await query(`ALTER TABLE user_league_players ADD CONSTRAINT fk_user_league_players_user_id FOREIGN KEY (user_id) REFERENCES users(id);`);
+    // await query(`ALTER TABLE user_league_players ADD CONSTRAINT fk_user_league_players_player_id FOREIGN KEY (player_id) REFERENCES players(id);`);
+    // await query(`ALTER TABLE user_league_players ADD CONSTRAINT fk_user_league_players_league_bid_id FOREIGN KEY (league_bid_id) REFERENCES league_bids(id);`);
 
   } catch (e) {
     console.log(e)

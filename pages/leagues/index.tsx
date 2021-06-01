@@ -34,6 +34,7 @@ export default function LeaguePage() {
                       <TableRow>
                         <TableCell>League ID</TableCell>
                         <TableCell align="left">League Name</TableCell>
+                        <TableCell align="left">Competition</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -43,6 +44,7 @@ export default function LeaguePage() {
                             {row.id}
                           </TableCell>
                           <TableCell align="left">{row.name}</TableCell>
+                          <TableCell align="left">{row.competition_name}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

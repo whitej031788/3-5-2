@@ -51,3 +51,8 @@ export function useLeague(id: string) {
 export function useEntry(id: string) {
   return useSWR(`/api/get-entry?id=${id}`, fetcher)
 }
+
+
+export function usePlayerBidData(player_id: string, league_id: string) {
+  return useSWR(`/api/get-player-bid?player_id=${player_id}&league_id=${league_id}`, fetcher)
+}

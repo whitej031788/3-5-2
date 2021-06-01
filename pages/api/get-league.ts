@@ -25,7 +25,7 @@ const handler: NextApiHandler = async (req, res) => {
       on l.id = ul.league_id AND ul.user_id = ?
       WHERE id = ?
     `,
-      [session.user.id, id]
+      [session.user.id, parseInt(id.toString())]
     )
 
     return res.json(results[0])

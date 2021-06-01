@@ -15,8 +15,9 @@ const handler: NextApiHandler = async (req, res) => {
   try {
     const results = await query(
       `
-      SELECT l.id, l.name FROM leagues l  
+      SELECT l.id, l.name, c.name as competition_name FROM leagues l  
       INNER JOIN user_leagues ul ON l.id = ul.league_id
+      INNER JOIN competitions c ON l.competition_id = c.id
       WHERE ul.user_id = ?
       `,
       [session.user.id]

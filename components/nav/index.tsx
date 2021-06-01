@@ -42,7 +42,7 @@ const useStyles = makeStyles({
 });
 
 const authNavLinks = [
-  { title: `leagues`, path: `leagues` },
+  { title: `leagues`, path: `/leagues` },
   { title: `account`, path: `/account` },
   { title: `logout`, path: `/logout` }
 ];
