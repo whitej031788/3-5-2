@@ -1,3 +1,3 @@
-export default interface InsertResult {
+export interface InsertResult {
   insertId: number
 };
