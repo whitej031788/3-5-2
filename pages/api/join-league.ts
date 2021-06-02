@@ -26,7 +26,7 @@ const handler: NextApiHandler = async (req, res) => {
       SELECT id FROM leagues WHERE join_code = ? LIMIT 1
       `,
       [join_code]
-    )
+    ) as any[]
 
     if (results.length == 0) {
       return res
