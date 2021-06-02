@@ -18,7 +18,7 @@ import SideDrawer from "./side-drawer";
 import BackToTop from "./back-to-top";
 import Link from 'next/link';
 import { getSession } from 'next-auth/client';
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 
 const useStyles = makeStyles({
   navbarDisplayFlex: {
@@ -56,6 +56,7 @@ const guestNavLinks = [
 
 const Nav = ({ isGuestRoute }) => {
   const classes = useStyles();
+  const router = useRouter();
 
   let navLinks = [];
   let homeLink = `/`;
@@ -77,7 +78,7 @@ const Nav = ({ isGuestRoute }) => {
     if (!isGuestRoute) {
       fetchSession();
     }
-  });
+  }, [router.asPath]);
 
   return (
     <>

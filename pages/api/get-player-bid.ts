@@ -34,7 +34,7 @@ const handler: NextApiHandler = async (req, res) => {
       AND lb.user_id = ?
       AND lb.league_id = ?
     `,
-      [player_id, session.user.id, league_id]
+      [parseInt(player_id.toString()), session.user.id, parseInt(league_id.toString())]
     )
 
     if (checkIfMinutesHavePassed.length !== 0 && !hasItBeenFifteenMinutes(new Date(checkIfMinutesHavePassed[0].recent_bid))) {
@@ -51,7 +51,7 @@ const handler: NextApiHandler = async (req, res) => {
       })
     }
 
-    return res.json(checkIfMinutesHavePassed)
+    return res.json(checkIfMinutesHavePassed[0])
   } catch (e) {
     return res.status(500).json({ message: e.message })
   }

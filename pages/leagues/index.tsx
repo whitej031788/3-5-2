@@ -6,10 +6,24 @@ import LeagueForm from '@/components/league-form';
 import JoinLeagueForm from '@/components/league-form/join';
 import { useLeagues } from '@/lib/swr-hooks';
 import Skeleton from 'react-loading-skeleton';
+import { useRouter } from 'next/router';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+  row: {
+    cursor: 'pointer',
+    transition: '0.1s',
+    '&:hover': { 
+      backgroundColor: 'rgba(0, 0, 0, 0.2)'
+    },
+  }
+}));
 
 export default function LeaguePage() {
   const [addModal, setAddModal] = useState(false);
   const [joinModal, setJoinModal] = useState(false);
+  const router = useRouter();
+  const classes = useStyles();
 
   const leagueData = useLeagues();
 
@@ -39,7 +53,7 @@ export default function LeaguePage() {
                     </TableHead>
                     <TableBody>
                       {leagueData.leagues.map((row) => (
-                        <TableRow key={row.name}>
+                        <TableRow key={row.name} className={classes.row} onClick={() => router.push('/leagues/' + row.id)}>
                           <TableCell component="th" scope="row">
                             {row.id}
                           </TableCell>

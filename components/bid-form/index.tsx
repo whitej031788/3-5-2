@@ -5,14 +5,32 @@ import Button from '@material-ui/core/Button';
 import useInputValue from '@/components/input-value';
 import AlertMessage from '@/components/alert-message';
 import { usePlayerBidData } from '@/lib/swr-hooks';
+import { makeStyles } from '@material-ui/core/styles';
 import CountdownTimer from '@/components/countdown-timer'
-import Skeleton from 'react-loading-skeleton'
+import Skeleton from 'react-loading-skeleton';
+import { ThumbUp, ThumbDown } from "@material-ui/icons";
+
+const useStyles = makeStyles((theme) => ({
+  noYpadding: {
+    paddingTop: "0px",
+    paddingBottom: "0px",
+    marginTop: "0px",
+    marginBottom: "0px"
+  },
+  greenIcon: {
+    color: 'green'
+  },
+  redIcon: {
+    color: 'red'
+  }
+}));
 
 function addMinutes(date, minutes) {
   return new Date(date.getTime() + minutes * 60000);
 }
 
-export default function BidForm({ player, league_id }) {
+export default function BidForm({ player, league_id, updatePlayer }) {
+  const classes = useStyles();
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState('');
   const [message, setMessage] = useState('');
@@ -66,9 +84,11 @@ export default function BidForm({ player, league_id }) {
         setBidRequestComplete(true)
         //The bid was made, we have to check if it was successful
         if (json.bidSuccess) {
+          updatePlayer(mutatePlayer(bid_amount, true))
           setMessage('Your bid was successful! You are currently the leading bidder.');
           setResult('success')
         } else {
+          updatePlayer(mutatePlayer(bid_amount, false))
           setMessage('Your bid failed. You need to now wait 15 minutes to attempt to bid again.');
           setResult('error')
         }
@@ -78,32 +98,46 @@ export default function BidForm({ player, league_id }) {
     }
   }
 
+  function mutatePlayer(bid_amount, success) {
+    return {id: player.id, name: player.name, position: player.position, team_name: player.team_name, winning_user_id: success, max_bid: bid_amount};
+  }
+
   let openBidError = null
 
   if (currentBidData.isError) {
-    if (currentBidData.isError.info.code == "minlimit") {
-      let dateFrom = addMinutes(new Date(currentBidData.isError.info.data.bid_date), 15)
+    if (currentBidData.isError.message.code == "minlimit") {
+      let dateFrom = addMinutes(new Date(currentBidData.isError.message.data.bid_date), 15)
       openBidError = (
         <>
-          <p>{currentBidData.isError.info.message}</p>
+          <p>{currentBidData.isError.message.message}</p>
           <CountdownTimer
             dateFromCalc={dateFrom} 
-            dateFromShow={new Date(currentBidData.isError.info.data.bid_date)} 
+            dateFromShow={new Date(currentBidData.isError.message.data.bid_date)} 
             dateFromText={`Last Bid: `} 
             dateToText={`Next Bid: `} 
           />
         </>
       );
     } else {
-      openBidError = (<span>{currentBidData.isError.info.message}</span>)
+      openBidError = (<span>{currentBidData.isError.message.message}</span>)
     }
   }
 
   return (
     <>
       <Grid container spacing={3}>
-        <Grid style={{padding: "0px"}} item xs={12} sm={12}><h4>Team: {player.team_name}</h4></Grid>
-        <Grid style={{padding: "0px"}} item xs={12} sm={12}><h4>Position: {player.position}</h4></Grid>
+        <Grid className={classes.noYpadding} item xs={12} sm={12}><h4 className={classes.noYpadding}>Team: {player.team_name}</h4></Grid>
+        <Grid className={classes.noYpadding} item xs={12} sm={12}><h4 className={classes.noYpadding}>Position: {player.position}</h4></Grid>
+        {(currentBidData && !currentBidData.isError && !currentBidData.isLoading) && (
+          <>
+            <Grid className={classes.noYpadding} item xs={12} sm={12}><h4 className={classes.noYpadding}>Current Bid: {currentBidData.bidData.max_bid || '*No bid yet'}</h4></Grid>
+            <Grid className={classes.noYpadding} item xs={12} sm={12}>
+              <h4 className={classes.noYpadding}>
+                Bid Status: {currentBidData.bidData.winning_user_id ? <ThumbUp className={classes.greenIcon} /> : <ThumbDown className={classes.redIcon} />}
+              </h4>
+            </Grid>
+          </>
+        )}
         {(result !== 'success' && !currentBidData.isError && !currentBidData.isLoading) && (
           <>
             <Grid item xs={12} sm={12}>

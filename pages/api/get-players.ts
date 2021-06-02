@@ -19,7 +19,8 @@ const handler: NextApiHandler = async (req, res) => {
     }
     const results = await query(
       `
-      SELECT DISTINCT p.id,p.name,p.position,t.name as team_name
+      SELECT p.id,p.name,p.position,t.name as team_name,
+      MAX(bid_amount) as max_bid, MAX(ulp.user_id) as winning_user_id
       FROM players p
       INNER JOIN player_teams pt
       ON p.id = pt.player_id
@@ -29,9 +30,14 @@ const handler: NextApiHandler = async (req, res) => {
       ON t.competition_id = c.id
       INNER JOIN leagues l
       ON c.id = l.competition_id
+      LEFT JOIN league_bids lb
+      ON lb.user_id = ? AND lb.league_id = l.id AND lb.player_id = p.id
+      LEFT JOIN user_league_players ulp
+      ON lb.id = ulp.league_bid_id AND lb.user_id = ulp.user_id
       WHERE l.id = ?
+      GROUP BY p.id,p.name,p.position,t.name
     `,
-      league_id
+      [session.user.id, league_id.toString()]
     )
 
     return res.json(results)

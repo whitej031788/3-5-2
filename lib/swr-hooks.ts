@@ -6,10 +6,10 @@ const fetcher = async url => {
   // If the status code is not in the range 200-299,
   // we still try to parse and throw it.
   if (!res.ok) {
-    const error = new Error('An error occurred while fetching the data.')
+    const error = new Error()
     // Attach extra info to the error object.
-    error.info = await res.json()
-    error.status = res.status
+    error.message = await res.json()
+    error.name = res.status.toString()
     throw error
   }
 
@@ -46,8 +46,8 @@ export function useLeagues() {
   }
 }
 
-export function usePlayers(league_id) {
-  const { data, error } = useSWR(`/api/get-players?league_id=${league_id}`, fetcher)
+export function usePlayers(league_id: string) {
+  const { data, error } = useSWR(league_id ? `/api/get-players?league_id=${league_id}` : null, fetcher)
 
   return {
     players: data,
@@ -57,16 +57,19 @@ export function usePlayers(league_id) {
 }
 
 export function useLeague(id: string) {
-  return useSWR(`/api/get-league?id=${id}`, fetcher)
-}
+  const { data, error } = useSWR(id ? `/api/get-league?id=${id}` : null, fetcher)
 
-export function useEntry(id: string) {
-  return useSWR(`/api/get-entry?id=${id}`, fetcher)
+  return {
+    league: data,
+    isLoading: !error && !data,
+    isError: error,
+  }
 }
 
 
 export function usePlayerBidData(player_id: string, league_id: string) {
   const { data, error } = useSWR(`/api/get-player-bid?player_id=${player_id}&league_id=${league_id}`, fetcher)
+
   return {
     bidData: data,
     isLoading: !error && !data,
