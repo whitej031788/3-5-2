@@ -35,7 +35,7 @@ const handler: NextApiHandler = async (req, res) => {
       AND lb.league_id = ?
     `,
       [parseInt(player_id.toString()), session.user.id, parseInt(league_id.toString())]
-    )
+    ) as any[]
 
     if (checkIfMinutesHavePassed.length !== 0 && !hasItBeenFifteenMinutes(new Date(checkIfMinutesHavePassed[0].recent_bid))) {
       let message = ""
