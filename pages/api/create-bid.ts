@@ -27,7 +27,7 @@ const handler: NextApiHandler = async (req, res) => {
       SELECT * FROM user_leagues WHERE league_id = ? AND user_id = ?
       `,
       [league_id, session.user.id]
-    )
+    ) as any[]
 
     if (checkPlayerLeague.length == 0) {
       return res
