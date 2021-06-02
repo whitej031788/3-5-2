@@ -1,7 +1,8 @@
 import { NextApiHandler } from 'next'
 import Filter from 'bad-words'
 import { query } from '../../lib/db'
-import { getSession } from 'next-auth/client'
+import { getSession } from 'next-auth/client';
+import { InsertResult } from '../../interfaces/QueryResults'
 
 const filter = new Filter()
 
@@ -75,7 +76,7 @@ const handler: NextApiHandler = async (req, res) => {
       [session.user.id, league_id, player_id, 
         bid_amount, bidSuccess
       ]
-    )
+    ) as InsertResult
 
     // if it's successful, lets upsert a row into the user_league_players table, saying the current owner
     if (bidSuccess) {
