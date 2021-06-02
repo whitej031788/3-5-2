@@ -2,6 +2,7 @@ import { NextApiHandler } from 'next'
 import Filter from 'bad-words'
 import { query } from '../../lib/db'
 import { getSession } from 'next-auth/client'
+import { InsertResult } from '../../interfaces/QueryResults'
 
 const filter = new Filter()
 
@@ -31,7 +32,7 @@ const handler: NextApiHandler = async (req, res) => {
       [session.user.id, competition_id, filter.clean(name), 
         max_players || null, new Date(start_date), join_code
       ]
-    )
+    ) as InsertResult
 
     const second = await query(
       `
