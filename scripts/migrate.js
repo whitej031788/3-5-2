@@ -59,5 +59,5 @@ run()
   .then((result) => {
     console.log(`Migration completed: ${JSON.stringify(result)}`);
   })
-  .catch(error => {throw error})
+  .catch(error => {console.log(error)})
   .finally(() => process.exit(1))
