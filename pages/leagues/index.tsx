@@ -53,7 +53,7 @@ export default function LeaguePage() {
           </Grid>
         </Container>
       </Box>
-      <FadeModal isOpen={addModal} setIsOpen={setAddModal} title={`Add League`} children={<LeagueForm />} />
+      <FadeModal isOpen={addModal} setIsOpen={setAddModal} children={<LeagueForm />} />
       <FadeModal isOpen={joinModal} setIsOpen={setJoinModal} title={`Join League`} children={<JoinLeagueForm />} />
     </div>
   )
