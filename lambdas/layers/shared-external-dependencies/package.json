@@ -1,0 +1,9 @@
+{
+  "name": "352-lambdas-external-libs",
+  "version": "1.0.0",
+  "description": "External NodeJS libs for SAM CLI to deploy with lambdas",
+  "license": "ISC",
+  "dependencies": {
+    "serverless-mysql": "^1.5.4"
+  }
+}

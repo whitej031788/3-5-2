@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Deploys all lambdas for 352, mostly scheduled cron jobs
+Parameters: 
+  NotificationEmail:
+    Type: String
+    Default : "whitej031788@gmail.com"
+  DbPasswordSSM:
+    Type: String
+    Default : "productionDatabasePassword-352"
+  DbUserSSM:
+    Type: String
+    Default : "productionDatabaseUser-352"
+  DbPortSSM:
+    Type: String
+    Default : "productionDatabasePort-352"
+  DbHostSSM:
+    Type: String
+    Default : "productionDatabaseHost-352"
+  DbDatabaseSSM:
+    Type: String
+    Default : "productionDatabaseName-352"
+
+Resources:
+  KmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Id: default
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+          Action:
+          - 'kms:Create*'
+          - 'kms:Encrypt'
+          - 'kms:Describe*'
+          - 'kms:Enable*'
+          - 'kms:List*'
+          - 'kms:Put*'
+          - 'kms:Update*'
+          - 'kms:Revoke*'
+          - 'kms:Disable*'
+          - 'kms:Get*'
+          - 'kms:Delete*'
+          - 'kms:ScheduleKeyDeletion'
+          - 'kms:CancelKeyDeletion'
+          Resource: '*'
+          Sid: Allow root account all permissions except to decrypt the key
+
+  CheckAuctionStatus:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: check-auction-status/
+      Handler: index.handler
+      Description: Constantly check the status of bids / auctions
+      Runtime: nodejs14.x
+      Policies:
+        - KMSDecryptPolicy:
+            KeyId: !Ref KmsKey
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref DbPasswordSSM
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref DbUserSSM
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref DbPortSSM
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref DbHostSSM
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref DbDatabaseSSM
+      Environment:
+        Variables:
+          MYSQL_HOST_SSM: !Ref DbHostSSM
+          MYSQL_USERNAME_SSM: !Ref DbUserSSM
+          MYSQL_PASSWORD_SSM: !Ref DbPasswordSSM
+          MYSQL_PORT_SSM: !Ref DbPortSSM
+          MYSQL_DATABASE_SSM: !Ref DbDatabaseSSM
+      MemorySize: 512
+      Timeout: 30
+      Events:
+        CheckAuctionStatusScheduledEvent:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 minute)
+      Layers:
+      - !Ref ExternalDependancies
+
+  ExternalDependancies:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+        LayerName: SharedExternalDependencies
+        Description: Shared external dependencies for lambdas
+        ContentUri: layers/shared-external-dependencies/.
+        CompatibleRuntimes:
+            - nodejs14.x
+        RetentionPolicy: Retain
+    Metadata:
+        BuildMethod: nodejs14.x
+
+  SamStatusAlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+      - Protocol: email
+        Endpoint: !Ref NotificationEmail
+
+  SamStatusAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref SamStatusAlarmTopic
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref CheckAuctionStatus
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: '1'

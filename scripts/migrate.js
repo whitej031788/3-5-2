@@ -60,4 +60,4 @@ run()
     console.log(`Migration completed: ${JSON.stringify(result)}`);
   })
   .catch(error => {console.log(error)})
-  .finally(() => process.exit(1))
+  .finally(() => process.exit())
