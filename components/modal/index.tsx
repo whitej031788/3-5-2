@@ -11,7 +11,8 @@ const useStyles = makeStyles((theme) => ({
   modal: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    overflow:'scroll'
   },
   title: {
     float: 'left'

@@ -14,23 +14,23 @@ const handler: NextApiHandler = async (req, res) => {
   }
 
   try {
-    const { name, max_players, start_date, competition_id } = req.body
+    const { leagueName, competition, numberOfPlayers, budget, start_date, end_date, transferWindow, maxPlayersOneClub, minOpenBid, minIncrement, subPoints } = req.body
 
-    if (!name) {
+    if (!leagueName) {
       return res
         .status(400)
-        .json({ message: '`name` is required' })
+        .json({ message: '`leagueName` is required' })
     }
 
     const join_code = guid();
 
     const results = await query(
       `
-      INSERT INTO leagues (user_id, competition_id, name, max_players, start_date, join_code)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO leagues (user_id, leagueName, competition, numberOfPlayers, budget, start_date, end_date, transferWindow, maxPlayersOneClub, minOpenBid, minIncrement, subPoints, join_code)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
-      [session.user.id, competition_id, filter.clean(name), 
-        max_players || null, new Date(start_date), join_code
+      [session.user.id, competition, numberOfPlayers, budget, transferWindow, maxPlayersOneClub, minOpenBid, minIncrement, subPoints, filter.clean(leagueName), 
+        maxPlayersOneClub || null, new Date(start_date), new Date(end_date), join_code
       ]
     ) as InsertResult
 
